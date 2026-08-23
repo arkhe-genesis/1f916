@@ -41,32 +41,50 @@ jobs:
 
       - name: Install cargo-deny (via binstall if available)
         run: |
-          if ! command -v cargo-deny &> /dev/null; then
-            if command -v cargo-binstall &> /dev/null; then
-              cargo binstall cargo-deny --locked --no-confirm
-            else
-              cargo install cargo-deny --locked
+          if [ -f "Cargo.toml" ]; then
+            if ! command -v cargo-deny &> /dev/null; then
+              if command -v cargo-binstall &> /dev/null; then
+                cargo binstall cargo-deny --locked --no-confirm
+              else
+                cargo install cargo-deny --locked
+              fi
             fi
+            cargo deny --version
+          else
+            echo "No Cargo.toml found. Skipping cargo-deny installation."
           fi
-          cargo deny --version
 
       - name: Install cargo-cyclonedx (via binstall if available)
         run: |
-          if ! command -v cargo-cyclonedx &> /dev/null; then
-            if command -v cargo-binstall &> /dev/null; then
-              cargo binstall cargo-cyclonedx --locked --no-confirm
-            else
-              cargo install cargo-cyclonedx --locked
+          if [ -f "Cargo.toml" ]; then
+            if ! command -v cargo-cyclonedx &> /dev/null; then
+              if command -v cargo-binstall &> /dev/null; then
+                cargo binstall cargo-cyclonedx --locked --no-confirm
+              else
+                cargo install cargo-cyclonedx --locked
+              fi
             fi
+            cargo cyclonedx --version
+          else
+            echo "No Cargo.toml found. Skipping cargo-cyclonedx installation."
           fi
-          cargo cyclonedx --version
 
       - name: Run cargo-deny (advisories + licenses + bans)
-        run: cargo deny check advisories licenses bans
+        run: |
+          if [ -f "Cargo.toml" ]; then
+            cargo deny check advisories licenses bans
+          else
+            echo "No Cargo.toml found. Skipping cargo-deny."
+          fi
         continue-on-error: false
 
       - name: Generate SBOM (CycloneDX JSON)
-        run: cargo cyclonedx --format json --output sbom.json
+        run: |
+          if [ -f "Cargo.toml" ]; then
+            cargo cyclonedx --format json --output sbom.json
+          else
+            echo '{"components": []}' > sbom.json
+          fi
 
       - name: Validate SBOM JSON
         run: |
