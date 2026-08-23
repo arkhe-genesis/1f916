@@ -1,0 +1,13 @@
+{
+  "global_score": 100.0,
+  "crates": {},
+  "methodology": {
+    "weights": {
+      "compilabilidade": 0.3,
+      "testes": 0.25,
+      "stubs": 0.25,
+      "documentacao": 0.2
+    },
+    "timestamp": "2026-08-23T20:59:16+00:00"
+  }
+}

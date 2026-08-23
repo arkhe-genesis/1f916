@@ -1,0 +1,38 @@
+[advisories]
+vulnerability = "deny"
+unmaintained = "warn"
+yanked = "warn"
+notice = "warn"
+ignore = []
+# Deny vulnerabilities with CVSS >= 4.0 (Medium or higher)
+severity-threshold = "medium"
+
+[licenses]
+unlicensed = "deny"
+copyleft = "warn"
+allow = []
+deny = []
+# GPL = warn (não deny) - Evita quebra de builds com deps transitivas
+warn = ["GPL-1.0-only", "GPL-1.0-or-later", "GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0-only", "GPL-3.0-or-later", "AGPL-1.0-only", "AGPL-1.0-or-later", "AGPL-3.0-only", "AGPL-3.0-or-later"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+
+[[bans.deny]]
+name = "openssl"
+
+[[bans.deny]]
+name = "failure"
+
+[[bans.deny]]
+name = "rustc-serialize"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
