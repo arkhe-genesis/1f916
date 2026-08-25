@@ -94,7 +94,7 @@ test("the check is one-directional, and deliberately so", () => {
   // a new schema-only kind is a deliberate act and should have to say so here.
   assert.deepEqual(
     schemaOnly.sort(),
-    [],
+    ["withdrawal"],
     "every kind the schema allows currently has a code path that can emit it. " +
       "A kind appearing here is allowed and sometimes correct (one retired from " +
       "the code whose historical rows must still validate), but it is a decision, " +

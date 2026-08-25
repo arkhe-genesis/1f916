@@ -145,6 +145,7 @@
               "listing",
               "listing-submission",
               "listing-withdrawn",
+              "withdrawal",
               "binding-verified",
               "binding-lapsed"
             ]
