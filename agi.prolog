@@ -8,7 +8,7 @@
     evidence/3,
     add_evidence/4,
     passport/5,
-    add_passport/6,
+    add_passport/5,
     is_audited/1,
     thompson_sample/3,
     update_beta/2,
@@ -361,11 +361,101 @@ test(breaker_cycle) :-
     close_breaker.
 
 test(passport_creation) :-
-    retractall(passport(_,_,_,_,_)),
+    retractall(agi:passport(_,_,_,_,_)),
     add_passport(e1, src, tgt, forward, json{uncertainty:0.01}),
     passport(e1, src, tgt, forward, _).
 
 :- end_tests(agi).
+
+
+%%% ========================================================================
+%%% SUBSTRATO 237: PLASMA RAILGUN SIMULATOR
+%%% ========================================================================
+
+:- dynamic plasma_shot/6.
+:- dynamic plasma_instability/4.
+:- dynamic plasma_material/3.
+
+plasma_register_shot(ID, Voltage, Current, Velocity, Density, Mass) :-
+    assertz(plasma_shot(ID, Voltage, Current, Velocity, Density, Mass)),
+    format('[Plasma] Shot ~w: V=~2f kV, v=~2f km/s~n', [ID, Voltage/1000, Velocity/1000]).
+
+plasma_register_instability(ShotID, BlowBy, Restrike, Erosion) :-
+    assertz(plasma_instability(ShotID, BlowBy, Restrike, Erosion)).
+
+plasma_register_material(Name, Type, Erosion) :-
+    assertz(plasma_material(Name, Type, Erosion)).
+
+plasma_best_velocity(Velocity) :-
+    findall(V, plasma_shot(_, _, _, V, _, _), Velocities),
+    max_list(Velocities, Velocity).
+
+plasma_shots_with_blowby(IDs) :-
+    findall(ID, plasma_instability(ID, BlowBy, _, _), BlowBy < 10, IDs).
+
+plasma_init :-
+    retractall(plasma_shot(_, _, _, _, _, _)),
+    retractall(plasma_instability(_, _, _, _)),
+    retractall(plasma_material(_, _, _)),
+    plasma_register_material('CuW', electrode, 1.24e-3),
+    plasma_register_material('Macor', insulator, 11.1),
+    plasma_register_material('PEEK', insulator, 26.4),
+    format('[Plasma] Substrato 237 inicializado~n').
+
+%%% ========================================================================
+%%% SUBSTRATO 238: SUPERSONIC PLASMA JET ENGINE
+%%% ========================================================================
+
+:- dynamic plx_shot/5.
+:- dynamic plx_jet/6.
+
+plx_register_shot(ID, Velocity, Density, Mach, Mass, Radius) :-
+    assertz(plx_shot(ID, Velocity, Density, Mach, Mass, Radius)),
+    format('[PLX] Shot ~w: v=~2f km/s, M=~2f~n', [ID, Velocity/1000, Mach]).
+
+plx_register_jet(ID, Velocity, Density, Temp, Mach, Mass) :-
+    assertz(plx_jet(ID, Velocity, Density, Temp, Mach, Mass)).
+
+plx_best_velocity(Velocity) :-
+    findall(V, plx_shot(_, V, _, _, _, _), Velocities),
+    max_list(Velocities, Velocity).
+
+plx_avg_density(Density) :-
+    findall(D, plx_shot(_, _, D, _, _, _), Densities),
+    sum_list(Densities, Sum),
+    length(Densities, N),
+    Density is Sum / N.
+
+plx_init :-
+    retractall(plx_shot(_, _, _, _, _, _)),
+    retractall(plx_jet(_, _, _, _, _, _)),
+    format('[PLX] Substrato 238 inicializado~n').
+
+%%% ========================================================================
+%%% SUBSTRATO 239: KILOTESLA MAGNET GENERATOR
+%%% ========================================================================
+
+:- dynamic magnet_pulse/5.
+:- dynamic magnet_design/4.
+
+magnet_register_pulse(ID, Field, Current, RiseTime, Kilotesla) :-
+    assertz(magnet_pulse(ID, Field, Current, RiseTime, Kilotesla)),
+    format('[Magnet] Pulse ~w: B=~2f T, rise=~2f ns~n', [ID, Field, RiseTime]).
+
+magnet_register_design(Turns, Diameter, Field, Achieved) :-
+    assertz(magnet_design(Turns, Diameter, Field, Achieved)).
+
+magnet_best_field(Field) :-
+    findall(F, magnet_pulse(_, F, _, _, _), Fields),
+    max_list(Fields, Field).
+
+magnet_kilotesla_pulses(IDs) :-
+    findall(ID, magnet_pulse(ID, Field, _, _, true), Field >= 1000, IDs).
+
+magnet_init :-
+    retractall(magnet_pulse(_, _, _, _, _)),
+    retractall(magnet_design(_, _, _, _)),
+    format('[Magnet] Substrato 239 inicializado~n').
 
 % ========================================================================
 % 10. INICIALIZAÇÃO
